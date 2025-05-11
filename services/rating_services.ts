@@ -25,7 +25,7 @@ export async function AddOrUpdateRating(rating: RatingType) {
 }
 
 export async function findUserRatings(userId: string) {
-  const ratings = await Rating.find({ userId });
+  const ratings = await Rating.find({ ratedUserId: userId });
   return ratings;
 }
 
