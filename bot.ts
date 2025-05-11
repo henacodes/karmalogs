@@ -1,6 +1,5 @@
 import { Bot } from "https://deno.land/x/grammy@v1.36.1/mod.ts";
 import { validateRatingSyntax } from "./utils/rating.ts";
-import { connectMongoDB } from "./config/mongo.ts";
 import {
   AddOrUpdateRating,
   findUserRatings,
