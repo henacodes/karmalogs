@@ -1,14 +1,13 @@
 import { Bot } from "https://deno.land/x/grammy@v1.36.1/mod.ts";
 import { validateRatingSyntax } from "./utils/rating.ts";
 import { connectMongoDB } from "./config/mongo.ts";
-import { AddOrUpdateRating } from "./services/rating_services.ts";
+import {
+  AddOrUpdateRating,
+  getUserRatingSummary,
+} from "./services/rating_services.ts";
 import mongoose from "npm:mongoose@^6.7";
 import { MONGO_URL } from "./utils/constants.ts";
-import {
-  isBotMentioned,
-  isReplyToAnotherUser,
-  replyToUser,
-} from "./utils/misc.ts";
+import { isBotMentioned, isReply, replyToUser } from "./utils/misc.ts";
 
 const BOT_TOKEN = Deno.env.get("BOT_TOKEN");
 
@@ -21,6 +20,33 @@ if (!BOT_TOKEN) {
 }
 const bot = new Bot(BOT_TOKEN);
 
+bot.command("karma", async (ctx) => {
+  const message = ctx.message;
+
+  // pass all mentions except when its the bot mentioned
+  // also make ts linter happy
+
+  const err = isReply(ctx, true);
+  if (err) {
+    return replyToUser(ctx, err);
+  }
+
+  if (!message || !message.reply_to_message || !message.reply_to_message.from) {
+    return;
+  }
+  let ratedUserId = message.reply_to_message.from.id;
+  const res = await getUserRatingSummary(String(ratedUserId));
+  console.log(res);
+  replyToUser(
+    ctx,
+    ` 
+    Karma: ${res.karma}/10 (${res.totalRaters} ${
+      res.totalRaters == 1 ? "person" : "people"
+    } rated) \nTotal Comments: ${res.totalComments}\n
+    `
+  );
+});
+
 bot.on("msg::mention", async (ctx) => {
   const message = ctx.message;
 
@@ -32,10 +58,9 @@ bot.on("msg::mention", async (ctx) => {
 
   // mentions that are not replies
   // and replies for self are rejected here
-  try {
-    isReplyToAnotherUser(ctx);
-  } catch (error: any) {
-    return replyToUser(ctx, error.message);
+  const err = isReply(ctx, false);
+  if (err) {
+    return replyToUser(ctx, err);
   }
 
   const validation = validateRatingSyntax(ctx.message.text!);

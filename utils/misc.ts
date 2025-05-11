@@ -12,23 +12,30 @@ export function isBotMentioned(ctx: Context) {
   return false;
 }
 
-export function isReplyToAnotherUser(ctx: Context) {
+export function isReply(
+  ctx: Context,
+  selfReplyAllowed: boolean
+): string | null {
   const message = ctx.message!;
-  if (message.reply_to_message) {
-    const repliedUserId = message.reply_to_message.from!.id;
-    const currentUserId = message.from.id;
 
-    if (repliedUserId == currentUserId) {
-      throw new Error("You can't rate yourself");
-    }
-  } else {
-    throw new Error("You need to reply to a user");
+  if (!message.reply_to_message) {
+    return "You need to reply to a user to use this feature.";
   }
+
+  const repliedUserId = message.reply_to_message.from!.id;
+  const currentUserId = message.from.id;
+
+  if (repliedUserId === currentUserId && !selfReplyAllowed) {
+    return "You can't rate yourself.";
+  }
+
+  return null;
 }
 
-export function replyToUser(ctx: Context, message: string) {
+export function replyToUser(ctx: Context, message: string, options?: object) {
   if (ctx.message) {
     ctx.reply(message, {
+      ...options,
       reply_parameters: { message_id: ctx.message.message_id },
     });
   }
