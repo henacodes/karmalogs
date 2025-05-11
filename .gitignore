@@ -1,0 +1,11 @@
+# Env/config
+.env
+.env.*
+
+# OS / Editor-specific
+.DS_Store
+*.log
+*.swp
+*.swo
+.vscode/
+.idea/

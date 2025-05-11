@@ -1,0 +1,6 @@
+// deno.json or deno.jsonc
+{
+  "tasks": {
+    "start": "deno run --env-file --watch --allow-net --allow-import --allow-env bot.ts  "
+  }
+}
