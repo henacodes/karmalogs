@@ -1,28 +1,66 @@
 import { Bot } from "https://deno.land/x/grammy@v1.36.1/mod.ts";
+import { validateRatingSyntax } from "./utils/rating.ts";
+import { connectMongoDB } from "./config/mongo.ts";
+import { AddOrUpdateRating } from "./services/rating_services.ts";
+import mongoose from "npm:mongoose@^6.7";
+import { MONGO_URL } from "./utils/constants.ts";
+import {
+  isBotMentioned,
+  isReplyToAnotherUser,
+  replyToUser,
+} from "./utils/misc.ts";
 
 const BOT_TOKEN = Deno.env.get("BOT_TOKEN");
 
-console.log("BO TOKEN", BOT_TOKEN);
+//connectMongoDB();
+
+await mongoose.connect("mongodb://localhost:27017");
+
 if (!BOT_TOKEN) {
   throw new Error("Bot token is not provided");
 }
+const bot = new Bot(BOT_TOKEN);
 
-// Create an instance of the `Bot` class and pass your bot token to it.
-const bot = new Bot(BOT_TOKEN); // <-- put your bot token between the ""
+bot.on("msg::mention", async (ctx) => {
+  const message = ctx.message;
 
-// You can now register listeners on your bot object `bot`.
-// grammY will call the listeners when users send messages to your bot.
+  // pass all mentions except when its the bot mentioned
+  // also make ts linter happy
+  if (!message || !isBotMentioned(ctx)) {
+    return;
+  }
 
-// Handle the /start command.
-bot.command("start", (ctx) => ctx.reply("Welcome! Up and running."));
-// Handle other messages.
-bot.on("message", (ctx) => {
-  ctx.reply("Got another message!");
-  console.log(ctx);
+  // mentions that are not replies
+  // and replies for self are rejected here
+  try {
+    isReplyToAnotherUser(ctx);
+  } catch (error: any) {
+    return replyToUser(ctx, error.message);
+  }
+
+  const validation = validateRatingSyntax(ctx.message.text!);
+  if (validation.isValid) {
+    //await AddOrUpdateRating({ userId: })
+    let userId = message.from.id;
+    //replyToUser(ctx, "Rated successfully. Thanks for contributing ✨✨!");
+    let ratedUserId = message.reply_to_message!.from!.id;
+    let score = validation.score!;
+    let comment = validation.comment;
+
+    const res = await AddOrUpdateRating({
+      userId: String(userId),
+      ratedUserId: String(ratedUserId),
+      comment: String(comment),
+      score,
+    });
+
+    replyToUser(ctx, res);
+  } else {
+    ctx.reply(validation.error!, {
+      reply_parameters: { message_id: message.message_id },
+    });
+  }
 });
-
-// Now that you specified how to handle messages, you can start your bot.
-// This will connect to the Telegram servers and wait for messages.
 
 // Start the bot.
 bot.start();
