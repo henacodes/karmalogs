@@ -132,5 +132,4 @@ bot.on("msg::mention", async (ctx) => {
   }
 });
 
-// Start the bot.
-bot.start();
+export default bot;
