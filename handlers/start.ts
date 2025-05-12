@@ -25,7 +25,7 @@ export default function handleStart(bot: Bot) {
         ctx.reply("No ratings so far ....");
       }
     } else {
-      ctx.reply("Welcome to our bot");
+      ctx.reply("Welcome to our bot\n Send /help to learn more ");
     }
   });
 }

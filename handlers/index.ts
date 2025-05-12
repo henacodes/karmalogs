@@ -3,10 +3,11 @@ import handleStart from "./start.ts";
 import handleMyKarma from "./my_karma.ts";
 import handleKarma from "./karma.ts";
 import handleMention from "./mention.ts";
-
+import handleHelp from "./help.ts";
 export function registerHandlers(bot: Bot) {
   handleStart(bot);
   handleMyKarma(bot);
   handleKarma(bot);
   handleMention(bot);
+  handleHelp(bot);
 }
