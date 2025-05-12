@@ -21,8 +21,6 @@ export function isReply(
     return "Uknown error occured";
   }
 
-  console.log(message);
-
   if (!message.reply_to_message) {
     return "You need to reply to a user to use this feature.";
   }

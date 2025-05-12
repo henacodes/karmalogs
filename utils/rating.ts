@@ -50,9 +50,13 @@ export function validateRatingSyntax(text: string): {
   };
 }
 
-export async function sendRatingMessage(ctx: Context, rating: Rating) {
+export async function sendRatingMessage(
+  ctx: Context,
+  rating: Rating,
+  userId?: string | number
+) {
   const message = `⭐ Rating: ${rating.score}\n\n💬 Comment: ${
     rating.comment || "No comment"
   }`;
-  await ctx.reply(message);
+  ctx.api.sendMessage(userId || ctx.chat.id, message);
 }

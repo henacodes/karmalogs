@@ -21,7 +21,6 @@ export default function handleKarma(bot: Bot) {
     }
     let ratedUserId = message.reply_to_message.from.id;
     const res = await getUserRatingSummary(String(ratedUserId));
-    console.log(res);
 
     const inlineKeyboard = [
       [

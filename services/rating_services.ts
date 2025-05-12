@@ -16,11 +16,18 @@ export async function AddOrUpdateRating(rating: RatingType) {
 
     await prevRating.save();
 
-    return "Rate updated successfully. Thanks for contributing ✨✨";
+    return {
+      new: false,
+      message: "Rate updated successfully. Thanks for contributing ✨✨",
+    };
   } else {
     const newRating = new Rating({ ...rating, lastUpdated: new Date() });
     await newRating.save();
-    return "Rated successfully. Thanks for contributing ✨✨!";
+    return {
+      new: true,
+      rating: newRating,
+      message: "Rated successfully. Thanks for contributing ✨✨!",
+    };
   }
 }
 
@@ -74,7 +81,6 @@ export async function getUserRatingSummary(ratedUserId: string) {
 
     return result[0];
   } catch (error) {
-    console.error("Error fetching user rating summary:", error);
     throw new Error("Failed to fetch user rating summary.");
   }
 }

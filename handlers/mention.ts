@@ -1,6 +1,6 @@
 import { Bot } from "https://deno.land/x/grammy@v1.36.1/mod.ts";
 import { isBotMentioned, isReply, replyToUser } from "../utils/misc.ts";
-import { validateRatingSyntax } from "../utils/rating.ts";
+import { sendRatingMessage, validateRatingSyntax } from "../utils/rating.ts";
 import { AddOrUpdateRating } from "../services/rating_services.ts";
 
 export default function mention(bot: Bot) {
@@ -22,9 +22,7 @@ export default function mention(bot: Bot) {
 
     const validation = validateRatingSyntax(ctx.message.text!);
     if (validation.isValid) {
-      //await AddOrUpdateRating({ userId: })
       let userId = message.from.id;
-      //replyToUser(ctx, "Rated successfully. Thanks for contributing ✨✨!");
       let ratedUserId = message.reply_to_message!.from!.id;
       let score = validation.score!;
       let comment = validation.comment;
@@ -35,8 +33,12 @@ export default function mention(bot: Bot) {
         comment: String(comment),
         score,
       });
+      if (res.new) {
+        ctx.api.sendMessage(ratedUserId, "🔔 Somebody rated you.");
+        sendRatingMessage(ctx, res.rating!, ratedUserId);
+      }
 
-      replyToUser(ctx, res);
+      replyToUser(ctx, res.message);
     } else {
       ctx.reply(validation.error!, {
         reply_parameters: { message_id: message.message_id },

@@ -10,14 +10,6 @@ export async function connectMongoDB() {
     mongoose.connection.on("connected", () => {
       console.log("MongoDB connected successfullyyyy.");
     });
-
-    mongoose.connection.on("error", (err) => {
-      console.error("MongoDB connection error:", err);
-    });
-
-    mongoose.connection.on("disconnected", () => {
-      console.log("MongoDB disconnected.");
-    });
   } catch (error) {
     console.log(error);
   }
