@@ -1,6 +1,8 @@
 // validateRatingSyntax.ts
 
+import { Context } from "node:vm";
 import { BOT_USERNAME, INVALID_RATING_FORMAT } from "./constants.ts";
+import { Rating } from "../types.ts";
 
 export function validateRatingSyntax(text: string): {
   isValid: boolean;
@@ -46,4 +48,11 @@ export function validateRatingSyntax(text: string): {
     score,
     comment,
   };
+}
+
+export async function sendRatingMessage(ctx: Context, rating: Rating) {
+  const message = `⭐ Rating: ${rating.score}\n\n💬 Comment: ${
+    rating.comment || "No comment"
+  }`;
+  await ctx.reply(message);
 }

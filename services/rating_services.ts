@@ -16,7 +16,7 @@ export async function AddOrUpdateRating(rating: RatingType) {
 
     await prevRating.save();
 
-    return "Rated updated successfully. Thanks for contributing ✨✨";
+    return "Rate updated successfully. Thanks for contributing ✨✨";
   } else {
     const newRating = new Rating({ ...rating, lastUpdated: new Date() });
     await newRating.save();

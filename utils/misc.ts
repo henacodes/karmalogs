@@ -16,7 +16,12 @@ export function isReply(
   ctx: Context,
   selfReplyAllowed: boolean
 ): string | null {
-  const message = ctx.message!;
+  const message = ctx.message;
+  if (!message) {
+    return "Uknown error occured";
+  }
+
+  console.log(message);
 
   if (!message.reply_to_message) {
     return "You need to reply to a user to use this feature.";
